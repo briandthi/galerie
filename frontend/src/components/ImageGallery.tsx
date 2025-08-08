@@ -3,7 +3,8 @@ import { useImages } from "../hooks/useImages";
 import ImageGrid from "./ImageGrid";
 import Lightbox from "./Lightbox";
 
-const IMAGES_PER_BATCH = 30;
+const INITIAL_BATCH_SIZE = 40; // Premier batch plus long
+const BATCH_SIZE = 15;         // Batchs suivants plus courts
 
 const BASE_URL = "http://51.83.4.19:3002/images/";
 
@@ -11,7 +12,7 @@ function ImageGallery() {
   const { images, isLoading, isError, error } = useImages();
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [visibleCount, setVisibleCount] = useState(IMAGES_PER_BATCH);
+  const [visibleCount, setVisibleCount] = useState(INITIAL_BATCH_SIZE);
   const sentinelRef = useRef<HTMLDivElement>(null);
   // Liste des URLs absolues pour la lightbox
 
@@ -30,13 +31,16 @@ function ImageGallery() {
       (entries) => {
         if (entries[0].isIntersecting) {
           setVisibleCount((count) => {
-            // Ne pas dépasser la longueur totale
             if (!images) return count;
-            return Math.min(count + IMAGES_PER_BATCH, images.length);
+            // Premier batch déjà chargé, on incrémente par BATCH_SIZE
+            return Math.min(count + BATCH_SIZE, images.length);
           });
         }
       },
-      { threshold: 0.1 }
+      {
+        threshold: 0.1,
+        rootMargin: "300px", // Marge pour déclencher avant d'être en bas de page
+      }
     );
     observer.observe(sentinelRef.current);
     return () => observer.disconnect();
@@ -50,7 +54,7 @@ function ImageGallery() {
 
   // Reset visibleCount si la liste change (ex: reload)
   React.useEffect(() => {
-    setVisibleCount(IMAGES_PER_BATCH);
+    setVisibleCount(INITIAL_BATCH_SIZE);
   }, [images]);
 
   const handleImageClick = useCallback((idx: number) => {
