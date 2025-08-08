@@ -61,7 +61,7 @@ const Lightbox: React.FC<LightboxProps> = ({
     <Dialog open={open} onOpenChange={(open) => !open && onClose()}>
       <DialogContent
         showCloseButton={false}
-        className="flex items-center justify-center p-0 max-w-none"
+        className="flex items-center justify-center p-0 max-w-none bg-[#000000b9]"
       >
         <DialogClose
           asChild
