@@ -12,6 +12,7 @@ services:
     volumes:
       - /var/www/images:/var/www/images:ro               # Images (volume persistant)
       - ./nginx-logs:/var/log/nginx                      # Logs Nginx
+      - /var/docker-nginx-ssl/:/etc/nginx/ssl:ro
     environment:
       - NODE_ENV=production
     healthcheck:
