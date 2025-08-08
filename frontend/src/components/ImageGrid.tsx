@@ -1,13 +1,6 @@
 import React, { useEffect, useState, useRef } from "react";
 import ImageCard from "./ImageCard";
 import { useMasonryLayout } from "../hooks/useMasonryLayout";
-import gsap from "gsap";
-import { ScrollSmoother } from "gsap/ScrollSmoother";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { useGSAP } from "@gsap/react";
-
-// Register GSAP plugins in the correct order
-gsap.registerPlugin(useGSAP, ScrollTrigger, ScrollSmoother);
 
 type MasonryImage = {
   src: string;
@@ -29,39 +22,6 @@ function ImageGrid(props: ImageGridProps) {
   const [loadingDimensions, setLoadingDimensions] = useState(true);
   const [containerWidth, setContainerWidth] = useState(0);
   const containerRef = useRef<HTMLDivElement>(null);
-
-  const smoothWrapperRef = useRef<HTMLDivElement>(null);
-  const contentRef = useRef<HTMLDivElement>(null);
-  const scrollSmootherRef = useRef<any>(null);
-
-useGSAP(() => {
-  if (!scrollSmootherRef.current) {
-    scrollSmootherRef.current = ScrollSmoother.create({
-      wrapper: smoothWrapperRef.current,
-      content: contentRef.current,
-      smooth: 2,
-      speed: 2,
-      effects: true,
-    });
-  }
-}, { scope: smoothWrapperRef, dependencies: [] }); // 🔹 pas de dépendances => 1 seule création
-
-// 🔄 Quand le layout change (images chargées, largeur connue), on refresh
-useEffect(() => {
-  if (scrollSmootherRef.current && !loadingDimensions && containerWidth > 0) {
-    scrollSmootherRef.current.refresh();
-  }
-}, [loadingDimensions, containerWidth, masonryImages]);
-
-
-  
-// 🔄 Quand les dimensions sont prêtes, on refresh
-useEffect(() => {
-  if (!scrollSmootherRef.current) return;
-  if (!loadingDimensions && containerWidth > 0) {
-    scrollSmootherRef.current.refresh();
-  }
-}, [loadingDimensions, containerWidth, masonryImages]);
 
   // Mesure dynamique de la largeur du container
   useEffect(() => {
@@ -184,77 +144,64 @@ useEffect(() => {
 
   return (
     <div
-      className="w-full"
+      className="w-full relative"
       ref={containerRef}
       style={{
         minHeight: containerHeight,
       }}
     >
-      <div ref={smoothWrapperRef} style={{ minHeight: containerHeight }}>
-        <div
-          ref={contentRef}
-          style={{ position: "relative", minHeight: containerHeight }}
-        >
-          {/* Affichage des messages d'erreur ou d'absence d'images */}
-          {isError && (
-            <div className="text-red-500 text-center py-8">
-              Error loading images: {error?.message}
-            </div>
-          )}
-          {!isError &&
-            images.length === 0 &&
-            !isLoading &&
-            !loadingDimensions && (
-              <div className="text-gray-500 text-center py-8">
-                No images found.
-              </div>
-            )}
-          {/* Affichage des images ou skeletons à leur position calculée */}
-          {allImages.map((img, i) => {
-            const pos = positions[i] || {
-              top: 0,
-              left: 0,
-              width: 200,
-              height: 200,
-            };
-            return (
-              <div
-                key={img.ready ? img.src : `skeleton-${img.src}`}
-                className="masonry-image"
-                style={{
-                  position: "absolute",
-                  top: pos.top,
-                  left: pos.left,
-                  width: pos.width,
-                  height: pos.height,
-                  transition: "all 0.3s cubic-bezier(.4,0,.2,1)",
-                  zIndex: img.ready ? 2 : 1,
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                }}
-              >
-                {img.ready ? (
-                  <ImageCard
-                    src={img.src}
-                    alt={`Image ${img.idx + 1}`}
-                    onClick={() => onImageClick(img.idx)}
-                  />
-                ) : null}
-              </div>
-            );
-          })}
-          {(isLoading || loadingDimensions || containerWidth === 0) &&
-            images.length === 0 && (
-              <div
-                className="absolute inset-0 flex items-center justify-center bg-white bg-opacity-70 z-50"
-                style={{ pointerEvents: "none" }}
-              >
-                Loading
-              </div>
-            )}
+      {/* Affichage des messages d'erreur ou d'absence d'images */}
+      {isError && (
+        <div className="text-red-500 text-center py-8">
+          Error loading images: {error?.message}
         </div>
-      </div>
+      )}
+      {!isError && images.length === 0 && !isLoading && !loadingDimensions && (
+        <div className="text-gray-500 text-center py-8">No images found.</div>
+      )}
+      {/* Affichage des images ou skeletons à leur position calculée */}
+      {allImages.map((img, i) => {
+        const pos = positions[i] || {
+          top: 0,
+          left: 0,
+          width: 200, 
+          height: 200,
+        };
+        return (
+          <div
+            key={img.ready ? img.src : `skeleton-${img.src}`}
+            style={{
+              position: "absolute",
+              top: pos.top,
+              left: pos.left,
+              width: pos.width,
+              height: pos.height,
+              transition: "all 0.3s cubic-bezier(.4,0,.2,1)",
+              zIndex: img.ready ? 2 : 1,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
+            {img.ready ? (
+              <ImageCard
+                src={img.src}
+                alt={`Image ${img.idx + 1}`}
+                onClick={() => onImageClick(img.idx)}
+              />
+            ) : null}
+          </div>
+        );
+      })}
+      {(isLoading || loadingDimensions || containerWidth === 0) &&
+        images.length === 0 && (
+          <div
+            className="absolute inset-0 flex items-center justify-center bg-white bg-opacity-70 z-50"
+            style={{ pointerEvents: "none" }}
+          >
+            Loading
+          </div>
+        )}
     </div>
   );
 }
