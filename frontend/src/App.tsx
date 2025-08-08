@@ -12,9 +12,13 @@ function App() {
   const [currentIndex, setCurrentIndex] = useState(0);
 
   // Liste des URLs absolues pour la lightbox
-  const imageUrls = Array.isArray(images)
-    ? images.map((img) => BASE_URL + encodeURIComponent(img))
-    : [];
+  const imageUrls = React.useMemo(
+    () =>
+      Array.isArray(images)
+        ? images.map((img) => BASE_URL + encodeURIComponent(img))
+        : [],
+    [images]
+  );
 
   const handleImageClick = useCallback((idx: number) => {
     setCurrentIndex(idx);
