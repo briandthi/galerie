@@ -178,5 +178,51 @@ services:
 
 ### Optimisations
 - **Service Worker** pour la mise en cache des images
-- **Formats d'images optimisés** : WebP/AVIF en priorité  
+- **Formats d'images optimisés** : WebP/AVIF en priorité
 - **Cache navigateur** géré automatiquement par Nginx
+
+---
+
+## 🖼️ Gestion des formats d'image (WebP, AVIF, JPG)
+
+- Pour chaque image, le frontend utilise la balise `<picture>` pour charger automatiquement le format le plus optimisé supporté par le navigateur (AVIF > WebP > JPG/PNG).
+- Les fichiers `.avif` et `.webp` doivent exister dans `/var/www/images/` en plus du format original (`.jpg` ou `.png`).
+- Exemple d'appel côté client :
+  ```html
+  <picture>
+    <source srcset="image.avif" type="image/avif" />
+    <source srcset="image.webp" type="image/webp" />
+    <img src="image.jpg" alt="..." />
+  </picture>
+  ```
+- Le fallback est automatique : si le navigateur ne supporte pas AVIF ou WebP, il chargera le JPG/PNG.
+
+## ⚙️ Configuration Nginx pour le cache et le multi-format
+
+- Le serveur Nginx est configuré pour :
+  - Servir les images depuis `/var/www/images/` via `/images/`
+  - Ajouter les headers de cache :
+    `Cache-Control: public, immutable`
+    `Expires: 1y`
+  - Ajouter le header `Vary: Accept` pour permettre aux CDN/proxies de différencier les formats selon le navigateur :
+    ```
+    add_header Vary "Accept";
+    ```
+- Exemple de bloc de configuration :
+  ```nginx
+  location /images/ {
+      alias /var/www/images/;
+      autoindex on;
+      add_header Access-Control-Allow-Origin "*" always;
+      add_header Vary "Accept";
+      expires 1y;
+      add_header Cache-Control "public, immutable";
+  }
+  ```
+
+## 📦 Résumé
+
+- Placez vos images dans `/var/www/images/` en générant les versions `.avif` et `.webp` pour chaque image.
+- Le frontend sélectionne automatiquement le format optimal.
+- Le cache navigateur et le fallback sont gérés automatiquement.
+- La configuration Nginx optimise la distribution et la compatibilité multi-format.
