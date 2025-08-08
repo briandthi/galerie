@@ -6,7 +6,7 @@ import Lightbox from "./Lightbox";
 const INITIAL_BATCH_SIZE = 40; // Premier batch plus long
 const BATCH_SIZE = 15;         // Batchs suivants plus courts
 
-const BASE_URL = "http://51.83.4.19:3002/images/";
+const BASE_URL = "https://galerie.thibaultbriand.fr/images/";
 
 function ImageGallery() {
   const { images, isLoading, isError, error } = useImages();
