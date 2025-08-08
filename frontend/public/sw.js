@@ -1,6 +1,11 @@
 // Simple Service Worker for static assets and images
 
-const CACHE_NAME = "galerie-cache-v1";
+/**
+ * Pour purger le cache de toutes les images lors d'un nouveau déploiement,
+ * incrémentez simplement le nom du cache (CACHE_NAME).
+ * Pour purger une image individuellement, elle sera remplacée lors du prochain fetch réussi.
+ */
+const CACHE_NAME = "galerie-cache-v2";
 const ASSETS = [
   "/",
   "/index.html",
@@ -41,6 +46,7 @@ self.addEventListener("fetch", (event) => {
             request.destination === "script" ||
             request.destination === "style")
         ) {
+          // Toujours écraser l'ancienne version si elle existe (cache multi-format)
           const responseClone = response.clone();
           caches.open(CACHE_NAME).then((cache) => cache.put(request, responseClone));
         }
