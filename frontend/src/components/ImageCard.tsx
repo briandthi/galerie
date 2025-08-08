@@ -67,16 +67,26 @@ export const ImageCard: React.FC<ImageCardProps> = ({ src, alt, onClick }) => {
         </div>
       )}
       {!loading && !error && shouldLoad && (
-        <img
-          src={src}
-          alt={alt || "Image"}
-          loading="lazy"
-          width={dimensions?.width}
-          height={dimensions?.height}
-          className="w-full h-auto object-cover transition-opacity duration-300"
-          style={{ display: loading ? "none" : "block" }}
-          draggable={false}
-        />
+        <picture>
+          <source
+            srcSet={src.replace(/\.(jpe?g|png)$/i, ".avif")}
+            type="image/avif"
+          />
+          <source
+            srcSet={src.replace(/\.(jpe?g|png)$/i, ".webp")}
+            type="image/webp"
+          />
+          <img
+            src={src}
+            alt={alt || "Image"}
+            loading="lazy"
+            width={dimensions?.width}
+            height={dimensions?.height}
+            className="w-full h-auto object-cover transition-opacity duration-300"
+            style={{ display: loading ? "none" : "block" }}
+            draggable={false}
+          />
+        </picture>
       )}
     </div>
   );
