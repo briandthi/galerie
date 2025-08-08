@@ -1,14 +1,14 @@
 #!/bin/bash
 
-# Script de déploiement pour horny
+# Script de déploiement pour galerie
 set -e
 
 echo "🚀 Début du déploiement..."
 
 # Variables (à modifier selon ton environnement)
-PROJECT_NAME="horny"
-CONTAINER_NAME="horny-app"
-PORT="3001"
+PROJECT_NAME="galerie"
+CONTAINER_NAME="galerie-app"
+PORT="3002"
 
 # Vérifier si Docker est installé
 if ! command -v docker &> /dev/null; then
@@ -32,7 +32,7 @@ docker image prune -f
 
 # Build et démarrage
 echo "🔨 Build et démarrage des conteneurs..."
-docker-compose up --build -d
+    docker-compose up --build -d
 
 # Vérifier le status
 echo "✅ Vérification du status..."

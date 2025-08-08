@@ -1,33 +1,56 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
 import './App.css'
+import React, { useState, useCallback } from "react";
+import ImageGrid from './components/ImageGrid'
+import Lightbox from './components/Lightbox'
+import { useImages } from './hooks/useImages'
+
+const BASE_URL = "http://51.83.4.19:3002/images/";
 
 function App() {
-  const [count, setCount] = useState(0)
+  const { images, isLoading, isError, error } = useImages();
+  const [lightboxOpen, setLightboxOpen] = useState(false);
+  const [currentIndex, setCurrentIndex] = useState(0);
+
+  // Liste des URLs absolues pour la lightbox
+  const imageUrls = Array.isArray(images)
+    ? images.map((img) => BASE_URL + encodeURIComponent(img))
+    : [];
+
+  const handleImageClick = useCallback((idx: number) => {
+    setCurrentIndex(idx);
+    setLightboxOpen(true);
+  }, []);
+
+  const handleClose = useCallback(() => {
+    setLightboxOpen(false);
+  }, []);
+
+  const handlePrev = useCallback(() => {
+    setCurrentIndex((idx) => (idx > 0 ? idx - 1 : idx));
+  }, []);
+
+  const handleNext = useCallback(() => {
+    setCurrentIndex((idx) => (idx < imageUrls.length - 1 ? idx + 1 : idx));
+  }, [imageUrls.length]);
 
   return (
     <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
+      <ImageGrid
+        images={imageUrls}
+        onImageClick={handleImageClick}
+        isLoading={isLoading}
+        isError={isError}
+        error={error}
+      />
+      <Lightbox
+        open={lightboxOpen}
+        onClose={handleClose}
+        images={imageUrls}
+        currentIndex={currentIndex}
+        onPrev={handlePrev}
+        onNext={handleNext}
+        alt={`Image ${currentIndex + 1}`}
+      />
     </>
   )
 }
