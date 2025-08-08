@@ -3,11 +3,11 @@ import { useImages } from "../hooks/useImages";
 import ImageGrid from "./ImageGrid";
 import Lightbox from "./Lightbox";
 
-const IMAGES_PER_BATCH = 20;
+const IMAGES_PER_BATCH = 30;
 
 const BASE_URL = "http://51.83.4.19:3002/images/";
 
-const ImageGallery: React.FC = () => {
+function ImageGallery() {
   const { images, isLoading, isError, error } = useImages();
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -22,7 +22,7 @@ const ImageGallery: React.FC = () => {
         : [],
     [images]
   );
-  
+
   // Intersection Observer pour la sentinelle
   React.useEffect(() => {
     if (!sentinelRef.current) return;
@@ -42,8 +42,11 @@ const ImageGallery: React.FC = () => {
     return () => observer.disconnect();
   }, [images]);
 
-  // Images à afficher
-  const visibleImages = imageUrls?.slice(0, visibleCount) ?? [];
+  // Images à afficher (mémorisé pour éviter une nouvelle référence à chaque render)
+  const visibleImages = React.useMemo(
+    () => imageUrls?.slice(0, visibleCount) ?? [],
+    [imageUrls, visibleCount]
+  );
 
   // Reset visibleCount si la liste change (ex: reload)
   React.useEffect(() => {
@@ -68,7 +71,7 @@ const ImageGallery: React.FC = () => {
   }, [imageUrls.length]);
 
   return (
-    <div>
+    <div className="p-4">
       <ImageGrid
         images={visibleImages}
         onImageClick={handleImageClick}
@@ -96,6 +99,7 @@ const ImageGallery: React.FC = () => {
       />
     </div>
   );
-};
+}
 
 export default ImageGallery;
+

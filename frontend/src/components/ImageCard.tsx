@@ -69,11 +69,11 @@ export const ImageCard: React.FC<ImageCardProps> = ({ src, alt, onClick }) => {
       {!loading && !error && shouldLoad && (
         <picture>
           <source
-            srcSet={src.replace(/\.(jpe?g|png)$/i, ".avif")}
+            srcSet={src.replace(/\.(jpe?g|png|JPG)$/i, ".avif")}
             type="image/avif"
           />
           <source
-            srcSet={src.replace(/\.(jpe?g|png)$/i, ".webp")}
+            srcSet={src.replace(/\.(jpe?g|png|JPG)$/i, ".webp")}
             type="image/webp"
           />
           <img
@@ -82,7 +82,7 @@ export const ImageCard: React.FC<ImageCardProps> = ({ src, alt, onClick }) => {
             loading="lazy"
             width={dimensions?.width}
             height={dimensions?.height}
-            className="w-full h-auto object-cover transition-opacity duration-300"
+            className="w-full h-auto object-cover transition-opacity duration-300 fade-in-scale"
             style={{ display: loading ? "none" : "block" }}
             draggable={false}
           />
