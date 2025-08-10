@@ -5,9 +5,9 @@ services:
       dockerfile: Dockerfile
     container_name: galerie-nginx
     ports:
-      - "80:80"    # HTTP standard
-      - "443:443"  # HTTPS standard
-      # - "3002:80"  # (optionnel) accès local sur 3002 si besoin
+      # - "80:80"    # HTTP standard
+      # - "443:443"  # HTTPS standard
+      - "3002:80"  # (optionnel) accès local sur 3002 si besoin
     restart: unless-stopped
     mem_limit: 768m
     cpus: 0.8
