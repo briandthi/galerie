@@ -3,7 +3,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: galerie-nginx
+    container_name: galerie
     restart: unless-stopped
     mem_limit: 768m
     cpus: 0.8
