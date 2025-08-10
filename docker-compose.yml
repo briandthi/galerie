@@ -4,27 +4,26 @@ services:
       context: .
       dockerfile: Dockerfile
     container_name: galerie-nginx
-    ports:
-      # - "80:80"    # HTTP standard
-      # - "443:443"  # HTTPS standard
-      - "3002:80"  # (optionnel) accès local sur 3002 si besoin
     restart: unless-stopped
     mem_limit: 768m
     cpus: 0.8
     volumes:
-      - /var/www/images:/var/www/images:ro               # Images (volume persistant)
-      - ./nginx-logs:/var/log/nginx                      # Logs Nginx
-      - /var/docker-nginx-ssl/:/etc/nginx/ssl:ro
+      - /var/www/images:/var/www/images:ro  # Images (volume persistant)
+      - ./nginx-logs:/var/log/nginx          # Logs locaux du conteneur
     environment:
       - NODE_ENV=production
+    networks:
+      - web_net
     healthcheck:
       test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:80"]
       interval: 30s
       timeout: 10s
       retries: 3
       start_period: 30s
+    # Plus de ports exposés - gérés par le reverse proxy
+    expose:
+      - "80"
 
-# Optionnel: réseau personnalisé
 networks:
-  default:
-    name: galerie-network
+  web_net:
+    external: true
