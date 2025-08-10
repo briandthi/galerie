@@ -1,29 +1,32 @@
 services:
-  traefik:
-    image: traefik:v2.10
-    container_name: traefik
+  galerie:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: galerie
     restart: unless-stopped
-    command:
-      - --log.level=INFO
-      - --api.dashboard=true
-      - --api.insecure=true                         # Dashboard accessible sans auth (mode dev)
-      - --providers.docker=true
-      - --providers.docker.exposedbydefault=false
-      - --entrypoints.web.address=:80
-      - --entrypoints.websecure.address=:443
-      - --entrypoints.traefik.address=:8080         # Entrypoint dashboard
-      - --certificatesresolvers.myresolver.acme.tlschallenge=true
-      - --certificatesresolvers.myresolver.acme.email=briandthi@gmail.com
-      - --certificatesresolvers.myresolver.acme.storage=/letsencrypt/acme.json
-    ports:
-      - 80:80
-      - 443:443
-      - 8080:8080                                   # Exposition du dashboard
+    mem_limit: 768m
+    cpus: 0.8
     volumes:
-      - /var/run/docker.sock:/var/run/docker.sock:ro
-      - ./letsencrypt:/letsencrypt
+      - /var/www/images:/var/www/images:ro
+      - ./nginx-logs:/var/log/nginx
+    environment:
+      - NODE_ENV=production
     networks:
       - webproxy
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:80"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    expose:
+      - "80"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.galerie.rule=Host(`galerie.thibaultbriand.fr`)"
+      - "traefik.http.routers.galerie.entrypoints=websecure"
+      - "traefik.http.routers.galerie.tls.certresolver=myresolver"
 
 networks:
   webproxy:
