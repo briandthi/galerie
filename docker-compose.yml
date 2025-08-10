@@ -27,6 +27,11 @@ services:
       - "traefik.http.routers.galerie.rule=Host(`galerie.thibaultbriand.fr`)"
       - "traefik.http.routers.galerie.entrypoints=websecure"
       - "traefik.http.routers.galerie.tls.certresolver=myresolver"
+      # Redirection HTTP vers HTTPS
+      - "traefik.http.routers.galerie-http.rule=Host(`galerie.thibaultbriand.fr`)"
+      - "traefik.http.routers.galerie-http.entrypoints=web"
+      - "traefik.http.routers.galerie-http.middlewares=redirect-to-https"
+      - "traefik.http.middlewares.redirect-to-https.redirectscheme.scheme=https"
 
 networks:
   webproxy:
